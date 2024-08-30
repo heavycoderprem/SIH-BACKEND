@@ -1,0 +1,136 @@
+/* globals.css */
+
+/* Import Tailwind's base styles, components, and utilities */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Global Styles */
+
+/* Set default body styles */
+@layer base {
+  * {
+    @apply box-border list-none p-0 m-0 scroll-smooth;
+  }
+}
+
+body {
+  @apply bg-[#fff] text-gray-800 font-sans;
+  font-family: 'Poppins', sans-serif; /* Ensure you have this font loaded in your project */
+}
+
+/* Typography Styles */
+h1 {
+  @apply text-4xl font-bold text-slate-900;
+}
+
+h2 {
+  @apply text-2xl md:text-3xl font-semibold text-slate-900;
+}
+
+h3 {
+  @apply text-2xl font-medium text-gray-700;
+}
+
+h4 {
+  @apply text-xl font-medium text-gray-700;
+}
+
+h5 {
+  @apply text-lg font-semibold text-gray-600;
+}
+
+h6 {
+  @apply text-base font-semibold text-gray-600;
+}
+
+p {
+  @apply text-xs md:text-base text-gray-600 leading-relaxed;
+}
+
+a {
+  @apply text-blue-600 hover:underline;
+}
+
+/* Input and Button Styles */
+input, textarea {
+  @apply border border-gray-300 rounded-md p-2 text-base;
+}
+
+button {
+  @apply bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600 transition-colors duration-200;
+}
+
+
+/* AG Grid Styling */
+.ag-theme-alpine {
+  --ag-background-color: #ffffff;
+  --ag-header-background-color: #f5f5f5;
+  --ag-font-family: 'Poppins', sans-serif;
+  --ag-font-size: 14px;
+  --ag-header-font-size: 16px;
+  --ag-border-color: #e5e5e5;
+  --ag-odd-row-background-color: #f9f9f9;
+  --ag-hover-color: #e2e8f0;
+}
+
+.ag-root-wrapper {
+  @apply border border-gray-300 rounded-md shadow-sm;
+}
+
+.ag-header-cell {
+  @apply text-gray-800 font-medium;
+}
+
+.ag-cell {
+  @apply text-gray-700;
+}
+
+/* Table and Grid Utility Styles */
+.table-wrapper {
+  @apply overflow-auto;
+}
+
+.table-controls {
+  @apply flex items-center justify-between mb-4;
+}
+
+/* Form Control Styles */
+.form-control {
+  @apply mb-4;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-gray-700 mb-1;
+}
+
+.form-input {
+  @apply block w-full border border-gray-400 border-[0.5px] p-2 text-base text-black text-opacity-80;
+}
+
+.form-textarea {
+  @apply block w-full border border-gray-300 rounded-md p-2 text-base resize-none;
+}
+
+.form-error {
+  @apply text-red-500 text-sm mt-1;
+}
+
+/* Utility Classes */
+
+.flex-center {
+  @apply flex items-center justify-center;
+}
+
+/* Auth Layout Specific Styles */
+.auth-container {
+  @apply max-w-md mx-auto my-10 p-6 bg-white rounded-lg shadow-lg;
+}
+
+.auth-header {
+  @apply mb-6 text-2xl font-bold text-center;
+}
+
+.auth-footer {
+  @apply mt-6 text-center;
+}

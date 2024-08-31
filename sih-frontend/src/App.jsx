@@ -6,6 +6,7 @@ import SignUpForm from "./_auth/forms/SignUpForm";
 import RootLayout from "./_root/RootLayout";
 import Home from "./_root/pages/Home";
 import AuthLayout from "./_auth/AuthLayout";
+import DashBoard from "./_root/pages/DashBoard";
 
 
 
@@ -20,7 +21,8 @@ function App() {
         </Route>
 
         <Route element={<RootLayout/>}>
-           <Route index element={<Home/>}/>
+           <Route index element={<DashBoard/>}/>
+           <Route path="/sheet/:id" element={<Home/>}/>
 
         </Route>
       </Routes>

@@ -12,9 +12,11 @@ import {
 } from "@/components/ui/ui/form";
 import { Input } from "@/components/ui/ui/input";
 import { signInformValidation } from "@/lib";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { loginUser } from "@/lib/api/auth";
 
 const SignInForm = () => {
+  const navigate = useNavigate();
   const form = useForm({
     resolver: zodResolver(signInformValidation),
     defaultValues: {
@@ -22,10 +24,15 @@ const SignInForm = () => {
       password: "",
     },
   });
-  function onSubmit(values) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+  async function onSubmit(values) {
+    
+    try {
+      const response = await loginUser(values);
+      console.log("User logged in successfully:", response);
+      navigate("/");
+    } catch (error) {
+      console.error("Login error:", error.response?.data || error.message);
+    }
   }
   return (
     <div>

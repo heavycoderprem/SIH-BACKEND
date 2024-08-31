@@ -13,9 +13,11 @@ import {
 } from "@/components/ui/ui/form";
 import { Input } from "@/components/ui/ui/input";
 import { signUpformValidation } from "@/lib";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { registerUser } from "@/lib/api/auth";
 
 const SignUpForm = () => {
+  const navigate = useNavigate();
   const form = useForm({
     resolver: zodResolver(signUpformValidation),
     defaultValues: {
@@ -24,10 +26,15 @@ const SignUpForm = () => {
       password: "",
     },
   });
-  function onSubmit(values) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+  async function onSubmit(values) {
+    try {
+      const response = await registerUser(values);
+      console.log("User Registered Successfully: ", response);
+
+      navigate("/sign-in");
+    } catch (error) {
+      console.error("Registration error: ", error.response?.data || error.message);
+    }
   }
   return (
     <div className="p-5">
@@ -52,7 +59,7 @@ const SignUpForm = () => {
                         type="text"
                         {...field}
                         className="form-input"
-                        {...field}
+                        
                       />
                     </FormControl>
 
@@ -72,7 +79,7 @@ const SignUpForm = () => {
                         type="email"
                         {...field}
                         className="form-input"
-                        {...field}
+                        
                       />
                     </FormControl>
 
@@ -92,7 +99,7 @@ const SignUpForm = () => {
                         type="password"
                         {...field}
                         className="form-input"
-                        {...field}
+                        
                       />
                     </FormControl>
 

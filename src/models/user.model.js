@@ -23,7 +23,11 @@ const userSchema = new Schema({
     },
     refreshToken: {
         type: String
-    }
+    },
+    sharedSheets: [{
+        sheetId: { type: Schema.Types.ObjectId, ref: 'Sheet' },
+        permission: { type: String, enum: ['view', 'edit'], default: 'view' } 
+    }]
 
 },
     {timestamps: true})

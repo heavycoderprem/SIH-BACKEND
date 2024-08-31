@@ -1,3 +1,4 @@
+import { useSpreadsheet } from '@/context/SpreadsheetContext';
 import { getCurrentUser, logoutUser } from '@/lib/api/auth'
 import React from 'react'
 import { useState } from 'react';
@@ -14,6 +15,7 @@ useEffect(() => {
   };
   fetchUser();
 },[]);
+
 const Logout = async () => {
     
     try {
@@ -34,6 +36,9 @@ const Logout = async () => {
           Log out
         </button>
       ) : null}
+      <div>
+      
+      </div>
     </>
   )
 }

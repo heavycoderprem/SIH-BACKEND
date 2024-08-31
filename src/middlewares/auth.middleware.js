@@ -11,9 +11,7 @@ export const verifyJWT = asyncHandler(async(req,_,next) => {
             throw new ApiError(401, "unauthrized bad request")
         }
         
-        console.log("Headers: ", req.header);
-        console.log("Token: ", token);
-        console.log("Cookies: ", req.cookies);
+        
         const decodedToken = jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
         const user = await User.findById(decodedToken._id).select("-password -refreshToken")
 

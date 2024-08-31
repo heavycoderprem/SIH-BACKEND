@@ -1,11 +1,23 @@
-import SpreadSheet from '@/components/shared/SpreadSheet'
+
 import React from 'react'
 
+import { useNavigate } from 'react-router-dom'
+
 const DashBoard = () => {
+  const navigate = useNavigate();
+  
+  const createNewSheet = () => {
+    
+    const newSheetId = Date.now(); 
+
+    
+    navigate(`/sheet/${newSheetId}`);
+  };
+
   return (
     <div>
+       <button onClick={createNewSheet}>Create New Sheet</button>
       
-      <SpreadSheet/>
     </div>
   )
 }

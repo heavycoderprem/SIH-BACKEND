@@ -3,7 +3,8 @@ import mongoose, {Schema} from 'mongoose';
 const sheetSchema = new Schema({
     name: {
         type: String,
-        required: true
+        required: true,
+        default: "Untitled"
     },
 
     owner: {
@@ -31,4 +32,4 @@ const sheetSchema = new Schema({
     timestamps: true
 })
 
-export const Sheet = mongoose.model("Sheer", sheetSchema)
+export const Sheet = mongoose.model("Sheet", sheetSchema)

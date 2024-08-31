@@ -7,6 +7,8 @@ import RootLayout from "./_root/RootLayout";
 import Home from "./_root/pages/Home";
 import AuthLayout from "./_auth/AuthLayout";
 import DashBoard from "./_root/pages/DashBoard";
+import { SpreadsheetProvider } from "./context/SpreadsheetContext";
+
 
 
 
@@ -14,18 +16,21 @@ function App() {
  
   return (
      <main>
+     <SpreadsheetProvider>
       <Routes>
         <Route element={<AuthLayout/>}>
           <Route path="/sign-in" element={<SignInForm/>}/>
           <Route path="/sign-up" element={<SignUpForm/>}/>
         </Route>
-
+      
         <Route element={<RootLayout/>}>
            <Route index element={<DashBoard/>}/>
            <Route path="/sheet/:id" element={<Home/>}/>
 
         </Route>
+      
       </Routes>
+      </SpreadsheetProvider>
      </main>
   )
 }

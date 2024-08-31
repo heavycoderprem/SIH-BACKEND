@@ -71,27 +71,17 @@ input, textarea {
   --ag-hover-color: #e2e8f0;
 }
 
-.ag-root-wrapper {
-  @apply border border-gray-300 rounded-md shadow-sm;
+.ag-cell, .ag-header-cell {
+  border: 1px solid rgb(200, 200, 200); /* Light gray border for cells */
 }
 
-.ag-header-cell {
-  @apply text-gray-800 font-medium;
+.ag-row {
+  border-bottom: 1px solid rgb(200, 200, 200); /* Border between rows */
 }
 
-.ag-cell {
-  @apply text-gray-700;
+.ag-header-row {
+  border-bottom: 2px solid rgb(14, 68, 145); /* Slightly thicker border for the header */
 }
-
-/* Table and Grid Utility Styles */
-.table-wrapper {
-  @apply overflow-auto;
-}
-
-.table-controls {
-  @apply flex items-center justify-between mb-4;
-}
-
 /* Form Control Styles */
 .form-control {
   @apply mb-4;

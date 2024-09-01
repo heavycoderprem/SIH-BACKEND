@@ -17,6 +17,7 @@ const AuthProvider = ({children}) => {
         const initializeUser = async () => {
             try {
                 await refreshToken();
+                
             } catch (error) {
                 console.error("Failed to refresh Token", error);
             }

@@ -12,11 +12,13 @@ import { SpreadsheetProvider } from "./context/SpreadsheetContext";
 
 
 
+
+
 function App() {
  
   return (
      <main>
-     <SpreadsheetProvider>
+     
       <Routes>
         <Route element={<AuthLayout/>}>
           <Route path="/sign-in" element={<SignInForm/>}/>
@@ -25,12 +27,12 @@ function App() {
       
         <Route element={<RootLayout/>}>
            <Route index element={<DashBoard/>}/>
-           <Route path="/sheet/:id" element={<Home/>}/>
+           <Route path="/sheet/:sheetId" element={<SpreadsheetProvider><Home/> </SpreadsheetProvider>}/>
 
         </Route>
       
       </Routes>
-      </SpreadsheetProvider>
+     
      </main>
   )
 }

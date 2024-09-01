@@ -3,12 +3,27 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/AsyncHandler.js";
 import { User } from "../models/user.model.js";
+import mongoose from "mongoose";
 
 
 const createSheet = asyncHandler(async(req,res) => {
-    const{owner} = req.body;
-    console.log(req.body);
-    const initialData = Array.from({ length: 15 }, () => Array(26).fill(''));
+    const {owner} = req.body;
+    console.log("Received owner ID in backend:", req.body);
+    if (!owner || !mongoose.Types.ObjectId.isValid(owner)) {
+        throw new ApiError(400, "Invalid or missing owner ID");
+    }
+
+    const columns = Array.from({ length: 26 }, (_, index) => {
+        const letter = String.fromCharCode(65 + index); 
+        return { headerName: letter, field: letter, editable: true };
+    });
+
+    const initialData = Array.from({ length: 15 }, () => {
+        return columns.reduce((acc, col) => {
+            acc[col.field] = ''; 
+            return acc;
+        }, {});
+    });
     const newSheet = new Sheet({owner, data: initialData});
     if(!newSheet) {
         throw new ApiError(500, "Something went wrong while creating new sheet")
@@ -76,24 +91,28 @@ const UpdateSheet = asyncHandler(async(req,res) => {
         case 'addRow':
             
             sheet.data.push(Array(sheet.data[0].length).fill(''));
+            await sheet.save();
+            console.log(sheet.data.length);
             break;
         case 'deleteRow':
             
             if (rowIndex >= 0 && rowIndex < sheet.data.length) {
                 sheet.data.splice(rowIndex, 1);
             }
+            console.log(sheet.data.length);
+            await sheet.save();
             break;
         case 'addColumn':
             
         sheet.data = sheet.data.map((row, index) => {
             if (Array.isArray(row)) {
-                row.push(''); // Add an empty column
+                row.push(''); 
             } else {
                 console.error(`Row ${index} is not an array. Current value:`, row);
-                // Attempt to fix the row structure by converting it to an array
+                
                 if (typeof row === 'object' && row !== null) {
-                    row = Object.values(row); // Convert object to array
-                    row.push(''); // Add the new column
+                    row = Object.values(row); 
+                    row.push(''); 
                 } else {
                     throw new ApiError(500, `Row ${index} is not an array or an object. Unable to add column.`);
                 }
@@ -104,12 +123,32 @@ const UpdateSheet = asyncHandler(async(req,res) => {
         case 'deleteColumn':
             
             if (columnIndex >= 0 && columnIndex < sheet.data[0].length) {
-                sheet.data.forEach(row => row.splice(columnIndex, 1));
+                sheet.data = sheet.data.map(row => {
+                    if (Array.isArray(row)) {
+                        row.splice(columnIndex, 1); 
+                        return row;
+                    } else {
+                       
+                        if (typeof row === 'object' && row !== null) {
+                            const rowArray = Object.values(row);
+                            rowArray.splice(columnIndex, 1);
+                            return rowArray;
+                        } else {
+                            throw new ApiError(500, "Row structure is inconsistent. Unable to delete column.");
+                        }
+                    }
+                    
+                });
+            } else {
+                throw new ApiError(400, "Invalid column index");
             }
+
+            
             break;
         case 'updateData':
             
             sheet.data = data;
+            await sheet.save();
             break;
         default:
             throw new ApiError(400, "Invalid operation");
@@ -121,7 +160,33 @@ const UpdateSheet = asyncHandler(async(req,res) => {
     )
 
 })
+const updateName = asyncHandler(async(req,res) => {
+    const {sheetId} = req.params;
+    const {newName } = req.body;
 
+    if(!sheetId || !newName) {
+        throw new ApiError(400,"SheetID and name are required")
+    }
+    
+    const sheet = await Sheet.findByIdAndUpdate(sheetId,
+        {
+            $set: {
+                name: newName
+            }
+        },
+        {
+            new: true
+        }
+    )
+    if(!sheet) {
+        throw new ApiError(404,"Sheet not found")
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200,sheet,"Name updated successfully")
+    )
+
+})
 const DeleteSheet = asyncHandler(async(req,res) => {
     const {sheetId} = req.params;
     const sheet = await Sheet.findByIdAndDelete(sheetId);
@@ -137,15 +202,16 @@ const DeleteSheet = asyncHandler(async(req,res) => {
 
 const ShareSheet = asyncHandler(async(req,res) => {
     const {sheetId} = req.params;
-    const {username,permission} = req.body;
-
-    if (typeof username === 'string') {
-        username = [username]; 
+    const {userNames,permission} = req.body;
+    console.log("credentials" ,req.body);
+    if (!userNames) {
+        throw new ApiError(400, "Username is required");
     }
-    if (!Array.isArray(username) || username.length === 0) {
+    const usernamesArray = Array.isArray(userNames) ? userNames : [userNames];
+    if (!usernamesArray || usernamesArray.length === 0) {
         throw new ApiError(400, "Invalid usernames");
     }
-    const userIds = await findUserIdsByNames(username);
+    const userIds = await findUserIdsByNames(usernamesArray);
     const sheet = await Sheet.findById(sheetId);
 
     if(!sheet) {
@@ -179,10 +245,15 @@ const ShareSheet = asyncHandler(async(req,res) => {
 })
 
 const findUserIdsByNames = async (userNames) => {
-    const users = await User.find({ username: { $in: userNames } });
+    const users = await User.find({ 
+        username: { 
+            $in: userNames.map(name => new RegExp(`^${name}$`, 'i')) 
+        } 
+    });
+
     if (users.length === 0) {
         throw new ApiError(404, "No users found");
     }
     return users.map(user => user._id);
 };
-export {createSheet,getAllSheets,getSingleSheet,UpdateSheet,DeleteSheet,ShareSheet};
+export {createSheet,getAllSheets,getSingleSheet,UpdateSheet,DeleteSheet,ShareSheet,updateName};

@@ -47,7 +47,7 @@ export const getCurrentUser = async() => {
 
 export const refreshToken = async () => {
     try {
-      const response = await axiosInstance.post('/api/v1/users/refresh-token');
+      const response = await axiosInstance.post('/api/v1/users/refresh-token',{},{withCredentials: true});
       localStorage.setItem('accessToken', response.data.accessToken);
       return response.data;
     } catch (error) {

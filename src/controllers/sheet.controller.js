@@ -4,6 +4,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/AsyncHandler.js";
 import { User } from "../models/user.model.js";
 import mongoose from "mongoose";
+import * as XLSX from 'xlsx';
 
 
 const createSheet = asyncHandler(async(req,res) => {
@@ -189,7 +190,21 @@ const updateName = asyncHandler(async(req,res) => {
 })
 const DeleteSheet = asyncHandler(async(req,res) => {
     const {sheetId} = req.params;
+    
+    const userId = req.user._id; 
+    const user = await User.findById(userId);
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+    const sharedSheet = user.sharedSheets.find(sheet => 
+        sheet.sheetId.toString() === sheetId && sheet.permission === 'edit'
+    );
+    if (!sharedSheet) {
+        throw new ApiError(403, "Forbidden: You do not have permission to delete this sheet");
+    }
+
     const sheet = await Sheet.findByIdAndDelete(sheetId);
+    
     if(!sheet) {
         throw new ApiError(404, "Sheet not found")
     }
@@ -256,4 +271,67 @@ const findUserIdsByNames = async (userNames) => {
     }
     return users.map(user => user._id);
 };
-export {createSheet,getAllSheets,getSingleSheet,UpdateSheet,DeleteSheet,ShareSheet,updateName};
+
+const importExcelSheet = asyncHandler(async(req,res) => {
+    const ownerKey = Object.keys(req.body).find(key => key.trim() === 'owner');
+    const owner = req.body[ownerKey];
+    console.log("Received owner ID in backend:", req.body);
+    
+    // Validate owner ID
+    if (!owner || !mongoose.Types.ObjectId.isValid(owner)) {
+        throw new ApiError(400, "Invalid or missing owner ID");
+    }
+
+    // Check if file is uploaded
+    console.log(req.file);
+    if (!req.file) {
+        throw new ApiError(400, "No file uploaded");
+    }
+    if (req.file.mimetype !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+        throw new ApiError(400, "Invalid file type. Please upload an .xlsx file");
+    }
+
+
+    const buffer = req.file.buffer;
+    console.log("Buffer length:", buffer.length);
+    try {
+        const workbook = XLSX.read(buffer, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+    console.log("Parsed Excel Data:", jsonData);
+    // Set columns dynamically from the Excel data
+    const columns = jsonData[0].map((colName, index) => {
+        const letter = String.fromCharCode(65 + index);
+        return { headerName: colName || letter, field: letter, editable: true };
+    });
+
+    // Set data from the Excel sheet (excluding the header row)
+    const data = jsonData.slice(1).map((row) => {
+        return columns.reduce((acc, col, index) => {
+            acc[col.field] = row[index] || '';
+            return acc;
+        }, {});
+    });
+    const newSheet = new Sheet({
+        owner,
+        data
+
+    })
+    if (!newSheet) {
+        throw new ApiError(500, "Something went wrong while creating new sheet");
+    }
+
+    await newSheet.save();
+    return res.status(200).json(
+        new ApiResponse(200,newSheet,"Sheet Created Successfully")
+    )
+    } catch (err) {
+        console.error("Error reading the Excel file:", err);
+        throw new ApiError(500, "Error reading the Excel file");
+    }
+
+})
+
+
+export {createSheet,getAllSheets,getSingleSheet,UpdateSheet,DeleteSheet,ShareSheet,updateName,importExcelSheet};

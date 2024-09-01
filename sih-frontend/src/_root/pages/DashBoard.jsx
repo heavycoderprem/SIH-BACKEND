@@ -47,7 +47,7 @@ const DashBoard = () => {
     } catch (err) {
       setError(err.message);
     } finally {
-      setLoading(false); // Reset loading state
+      setLoading(false); 
     }
   };
   if (loading) return <h1>Loading...</h1>;
@@ -60,12 +60,15 @@ const DashBoard = () => {
   return (
     <div className="flex flex-col items-center w-full gap-10">
       <h2 className="mt-4">Welcome Back {name} !</h2>
+      <div>
       <button
         onClick={createNewSheet}
         className="hover:scale-[1.1] border-solid border-1 border-black bg-green-100 px-4 py-2"
       >
         Create New Sheet
       </button>
+
+      </div>
       <h1>Your Sheets</h1>
       <ul>
         {sheets
@@ -76,7 +79,7 @@ const DashBoard = () => {
               onClick={() => handleSheetClick(sheet._id)}
               className="sheet-item cursor-pointer p-2"
             >
-              <button className="px-4 py-2 text-black bg-sky-200 w-[100px] hover:bg-green-100 hover:text-black font-medium transition-colors duration-150">{sheet.name}</button>
+              <button className="px-4 py-2 text-black bg-sky-200 w-[100%] hover:bg-green-100 hover:text-black font-medium transition-colors duration-150">{sheet.name}</button>
             </li>
           ))}
       </ul>
